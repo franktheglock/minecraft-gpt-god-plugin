@@ -320,13 +320,18 @@ public class GptAPI {
                     if (response.getStatusLine().getStatusCode() != 200) {
                         GPTGOD.LOGGER.warn("API call failed with status " + response.getStatusLine().getStatusCode());
                         this.isSending = false;
+                        return;
                     }
 
-                    String normalized = normalizeResponseForActions(raw, provider);
-                    if (functions == null) {
-                        GptActions.processResponse(normalized);
-                    } else {
-                        GptActions.processResponse(normalized, functions);
+                    try {
+                        String normalized = normalizeResponseForActions(raw, provider);
+                        if (functions == null) {
+                            GptActions.processResponse(normalized);
+                        } else {
+                            GptActions.processResponse(normalized, functions);
+                        }
+                    } catch (RuntimeException e) {
+                        GPTGOD.LOGGER.error("Failed to process model response", e);
                     }
                 }
             } catch (IOException e) {
